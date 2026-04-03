@@ -1,72 +1,40 @@
 local player = game.Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local root = char:WaitForChild("HumanoidRootPart")
+local playerGui = player:WaitForChild("PlayerGui")
 
-local running = false
+-- Tạo GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = playerGui
 
-local positions = {
-    Vector3.new(-1913, 64, -655),
-    Vector3.new(149, 660, -192),
-    Vector3.new(-253, 153, -418),
-    Vector3.new(-550, 82, 645),
-    Vector3.new(87, 75, -479),
-    Vector3.new(64, 88, 430),
-    Vector3.new(715, 68, 113),
-    Vector3.new(616, 90, -37)
-}
-
--- tạo GUI
-local gui = Instance.new("ScreenGui")
-gui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-
--- nút mở GUI
-local open = Instance.new("TextButton")
-open.Parent = gui
-open.Size = UDim2.new(0,120,0,40)
-open.Position = UDim2.new(0,20,0,200)
-open.Text = "Teleport GUI"
-
--- frame
 local frame = Instance.new("Frame")
-frame.Parent = gui
-frame.Size = UDim2.new(0,200,0,120)
-frame.Position = UDim2.new(0,20,0,250)
-frame.Visible = false
-frame.BackgroundColor3 = Color3.fromRGB(40,40,40)
+frame.Size = UDim2.new(0,300,0,400)
+frame.Position = UDim2.new(0,10,0,10)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.Parent = screenGui
 
--- nút toggle
-local toggle = Instance.new("TextButton")
-toggle.Parent = frame
-toggle.Size = UDim2.new(1,0,0,40)
-toggle.Position = UDim2.new(0,0,0,10)
-toggle.Text = "Auto Teleport OFF"
+local scrolling = Instance.new("ScrollingFrame")
+scrolling.Size = UDim2.new(1,0,1,0)
+scrolling.CanvasSize = UDim2.new(0,0,0,0)
+scrolling.Parent = frame
 
--- mở frame
-open.MouseButton1Click:Connect(function()
-	frame.Visible = not frame.Visible
-end)
+local layout = Instance.new("UIListLayout")
+layout.Parent = scrolling
 
--- bật tắt teleport
-toggle.MouseButton1Click:Connect(function()
-	running = not running
-	
-	if running then
-		toggle.Text = "Auto Teleport ON"
-	else
-		toggle.Text = "Auto Teleport OFF"
+-- Hàm thêm tên Part vào GUI
+local function addPart(part)
+	if part:IsA("Part") then
+		local label = Instance.new("TextLabel")
+		label.Size = UDim2.new(1,0,0,25)
+		label.Text = part.Name
+		label.TextColor3 = Color3.new(1,1,1)
+		label.BackgroundTransparency = 1
+		label.Parent = scrolling
 	end
-end)
+end
 
--- teleport loop
-task.spawn(function()
-	while true do
-		if running then
-			for _,pos in ipairs(positions) do
-				root.CFrame = CFrame.new(pos)
-				task.wait(0.8)
-			end
-		else
-			task.wait(0.1)
-		end
-	end
-end)
+-- Quét tất cả Part
+for _,v in pairs(workspace:GetDescendants()) do
+	addPart(v)
+end
+
+-- Khi có Part mới
+workspace.DescendantAdded:Connect(addPart)
