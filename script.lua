@@ -1,40 +1,28 @@
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
--- Tạo GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = playerGui
-
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0,300,0,400)
-frame.Position = UDim2.new(0,10,0,10)
-frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-frame.Parent = screenGui
-
-local scrolling = Instance.new("ScrollingFrame")
-scrolling.Size = UDim2.new(1,0,1,0)
-scrolling.CanvasSize = UDim2.new(0,0,0,0)
-scrolling.Parent = frame
-
-local layout = Instance.new("UIListLayout")
-layout.Parent = scrolling
-
--- Hàm thêm tên Part vào GUI
-local function addPart(part)
-	if part:IsA("Part") then
-		local label = Instance.new("TextLabel")
-		label.Size = UDim2.new(1,0,0,25)
-		label.Text = part.Name
-		label.TextColor3 = Color3.new(1,1,1)
-		label.BackgroundTransparency = 1
-		label.Parent = scrolling
+local function addBillboard(part)
+	if part:IsA("BasePart") then
+		
+		local billboard = Instance.new("BillboardGui")
+		billboard.Size = UDim2.new(0,200,0,50)
+		billboard.StudsOffset = Vector3.new(0,3,0)
+		billboard.AlwaysOnTop = true
+		billboard.Parent = part
+		
+		local text = Instance.new("TextLabel")
+		text.Size = UDim2.new(1,0,1,0)
+		text.BackgroundTransparency = 1
+		text.Text = part.Name
+		text.TextColor3 = Color3.fromRGB(255,255,255)
+		text.TextStrokeTransparency = 0
+		text.TextScaled = true
+		text.Parent = billboard
+		
 	end
 end
 
--- Quét tất cả Part
+-- thêm cho tất cả part đã có
 for _,v in pairs(workspace:GetDescendants()) do
-	addPart(v)
+	addBillboard(v)
 end
 
--- Khi có Part mới
-workspace.DescendantAdded:Connect(addPart)
+-- khi có part mới spawn
+workspace.DescendantAdded:Connect(addBillboard)
