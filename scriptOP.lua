@@ -2,13 +2,18 @@ local player = game.Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 local humanoid = char:WaitForChild("Humanoid")
 
+-- giá trị mặc định
+local normalSpeed = 16
+local normalJump = 50
+local normalGravity = 196.2
+
 -- GUI
 local gui = Instance.new("ScreenGui")
 gui.Parent = player:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
 frame.Parent = gui
-frame.Size = UDim2.new(0,220,0,240)
+frame.Size = UDim2.new(0,230,0,300)
 frame.Position = UDim2.new(0,20,0,200)
 frame.BackgroundColor3 = Color3.fromRGB(40,40,40)
 
@@ -48,6 +53,7 @@ jumpBtn.Text = "Set Jump"
 jumpBtn.MouseButton1Click:Connect(function()
 	local v = tonumber(jumpBox.Text)
 	if v then
+		humanoid.UseJumpPower = true
 		humanoid.JumpPower = v
 	end
 end)
@@ -93,4 +99,18 @@ tpBtn.MouseButton1Click:Connect(function()
 			char.HumanoidRootPart.CFrame = root.CFrame
 		end
 	end
+end)
+
+-- SET NORMAL
+local normalBtn = Instance.new("TextButton")
+normalBtn.Parent = frame
+normalBtn.Size = UDim2.new(1,0,0,30)
+normalBtn.Position = UDim2.new(0,0,0,270)
+normalBtn.Text = "Set To Normal"
+
+normalBtn.MouseButton1Click:Connect(function()
+	humanoid.WalkSpeed = normalSpeed
+	humanoid.UseJumpPower = true
+	humanoid.JumpPower = normalJump
+	game.Workspace.Gravity = normalGravity
 end)
