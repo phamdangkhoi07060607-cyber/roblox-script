@@ -60,6 +60,7 @@ local bill = Instance.new("BillboardGui")
 bill.Name = "ESP"
 bill.Size = UDim2.new(0,100,0,40)
 bill.AlwaysOnTop = true
+bill.Adornee = part
 bill.Parent = part
 
 local text = Instance.new("TextLabel")
@@ -116,7 +117,8 @@ end
 -- GUI
 --------------------------------------------------
 
-local gui = Instance.new("ScreenGui", player.PlayerGui)
+local gui = Instance.new("ScreenGui")
+gui.Parent = player:WaitForChild("PlayerGui")
 
 local main = Instance.new("Frame", gui)
 main.Size = UDim2.new(0,500,0,350)
@@ -156,10 +158,15 @@ end)
 local scroll = Instance.new("ScrollingFrame", main)
 scroll.Size = UDim2.new(1,-20,1,-60)
 scroll.Position = UDim2.new(0,10,0,50)
-scroll.CanvasSize = UDim2.new(0,0,0,1000)
+scroll.BackgroundTransparency = 1
+scroll.ScrollBarThickness = 6
 
 local layout = Instance.new("UIListLayout", scroll)
 layout.Padding = UDim.new(0,5)
+
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+scroll.CanvasSize = UDim2.new(0,0,0,layout.AbsoluteContentSize.Y + 10)
+end)
 
 --------------------------------------------------
 -- CREATE ITEM BUTTONS
@@ -172,6 +179,7 @@ label.Text = "=== "..category.." ==="
 label.Size = UDim2.new(1,0,0,30)
 label.BackgroundTransparency = 1
 label.TextColor3 = Color3.new(1,1,1)
+label.TextScaled = true
 
 for _,itemName in pairs(list) do
 
