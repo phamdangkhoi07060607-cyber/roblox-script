@@ -3,7 +3,7 @@ local char = player.Character or player.CharacterAdded:Wait()
 local humanoid = char:WaitForChild("Humanoid")
 local root = char:WaitForChild("HumanoidRootPart")
 
--- LISTS
+-- ITEM LISTS
 
 local foods = {
 "Carrot","Corn","Pumpkin","Berry","Apple","Morsel","CookedMorsel",
@@ -48,7 +48,7 @@ frame.Parent = gui
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,0,0,40)
-title.Text = "ITEM FARM MENU"
+title.Text = "ITEM TELEPORT MENU"
 title.BackgroundColor3 = Color3.fromRGB(40,40,40)
 title.TextColor3 = Color3.new(1,1,1)
 title.Parent = frame
@@ -94,7 +94,7 @@ end)
 
 -- ESP
 
-local function esp(obj)
+local function createESP(obj)
 
 local part
 if obj:IsA("Model") then
@@ -121,7 +121,7 @@ text.Parent = bill
 
 end
 
--- TELEPORT
+-- TELEPORT ITEM
 
 local function teleportItem(obj)
 
@@ -143,27 +143,40 @@ task.wait()
 
 part.Anchored = old
 
-esp(obj)
+createESP(obj)
 
 end
 
--- CATEGORY BUTTON
+-- LIST CREATOR
 
-local function createCategory(name,list,pos)
+local function createList(list)
+
+for _,v in pairs(teleportFrame:GetChildren()) do
+if v.Name == "itemButton" then
+v:Destroy()
+end
+end
+
+local y = 50
+
+for _,itemName in pairs(list) do
 
 local btn = Instance.new("TextButton")
-btn.Size = UDim2.new(0.9,0,0,40)
-btn.Position = pos
-btn.Text = name
-btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+btn.Name = "itemButton"
+btn.Size = UDim2.new(0.9,0,0,35)
+btn.Position = UDim2.new(0.05,0,0,y)
+btn.Text = itemName
+btn.BackgroundColor3 = Color3.fromRGB(55,55,55)
 btn.TextColor3 = Color3.new(1,1,1)
 btn.Parent = teleportFrame
 
+y = y + 40
+
 btn.MouseButton1Click:Connect(function()
 
-for _,v in pairs(workspace:GetDescendants()) do
-if table.find(list,v.Name) then
-teleportItem(v)
+for _,obj in pairs(workspace:GetDescendants()) do
+if obj.Name == itemName then
+teleportItem(obj)
 end
 end
 
@@ -171,10 +184,46 @@ end)
 
 end
 
-createCategory("Food",foods,UDim2.new(0.05,0,0.05,0))
-createCategory("Weapons",weapons,UDim2.new(0.05,0,0.2,0))
-createCategory("Armor",armors,UDim2.new(0.05,0,0.35,0))
-createCategory("Resources",resources,UDim2.new(0.05,0,0.5,0))
+end
+
+-- CATEGORY BUTTONS
+
+local foodBtn = Instance.new("TextButton")
+foodBtn.Size = UDim2.new(0.22,0,0,35)
+foodBtn.Position = UDim2.new(0.02,0,0,5)
+foodBtn.Text = "Food"
+foodBtn.Parent = teleportFrame
+
+foodBtn.MouseButton1Click:Connect(function()
+createList(foods)
+end)
+
+local weaponBtn = foodBtn:Clone()
+weaponBtn.Text = "Weapons"
+weaponBtn.Position = UDim2.new(0.26,0,0,5)
+weaponBtn.Parent = teleportFrame
+
+weaponBtn.MouseButton1Click:Connect(function()
+createList(weapons)
+end)
+
+local armorBtn = foodBtn:Clone()
+armorBtn.Text = "Armor"
+armorBtn.Position = UDim2.new(0.50,0,0,5)
+armorBtn.Parent = teleportFrame
+
+armorBtn.MouseButton1Click:Connect(function()
+createList(armors)
+end)
+
+local resBtn = foodBtn:Clone()
+resBtn.Text = "Resources"
+resBtn.Position = UDim2.new(0.74,0,0,5)
+resBtn.Parent = teleportFrame
+
+resBtn.MouseButton1Click:Connect(function()
+createList(resources)
+end)
 
 -- PLAYER SETTINGS
 
@@ -191,7 +240,6 @@ label.Parent = playerFrame
 local box = Instance.new("TextBox")
 box.Size = UDim2.new(0.4,0,0,30)
 box.Position = pos + UDim2.new(0.45,0,0,0)
-box.Text = ""
 box.Parent = playerFrame
 
 box.FocusLost:Connect(function()
