@@ -1,5 +1,4 @@
 -- GUI + TELEPORT ITEM + PLAYER SETTINGS + ESP
-
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
@@ -61,7 +60,6 @@ local bill = Instance.new("BillboardGui")
 bill.Name = "ESP"
 bill.Size = UDim2.new(0,100,0,40)
 bill.AlwaysOnTop = true
-bill.Adornee = part
 bill.Parent = part
 
 local text = Instance.new("TextLabel")
@@ -118,11 +116,9 @@ end
 -- GUI
 --------------------------------------------------
 
-local gui = Instance.new("ScreenGui")
-gui.Parent = player.PlayerGui
+local gui = Instance.new("ScreenGui", player.PlayerGui)
 
-local main = Instance.new("Frame")
-main.Parent = gui
+local main = Instance.new("Frame", gui)
 main.Size = UDim2.new(0,500,0,350)
 main.Position = UDim2.new(0.5,-250,0.5,-175)
 main.BackgroundColor3 = Color3.fromRGB(30,30,30)
@@ -131,8 +127,7 @@ main.BackgroundColor3 = Color3.fromRGB(30,30,30)
 -- CLOSE BUTTON
 --------------------------------------------------
 
-local close = Instance.new("TextButton")
-close.Parent = main
+local close = Instance.new("TextButton", main)
 close.Size = UDim2.new(0,30,0,30)
 close.Position = UDim2.new(1,-35,0,5)
 close.Text = "X"
@@ -145,8 +140,7 @@ end)
 -- OPEN BUTTON
 --------------------------------------------------
 
-local open = Instance.new("TextButton")
-open.Parent = gui
+local open = Instance.new("TextButton", gui)
 open.Size = UDim2.new(0,120,0,35)
 open.Position = UDim2.new(0,20,0.5,0)
 open.Text = "OPEN GUI"
@@ -156,27 +150,20 @@ main.Visible = true
 end)
 
 --------------------------------------------------
--- SCROLL FRAME (FIX TRÀN)
+-- SCROLL FRAME
 --------------------------------------------------
 
-local scroll = Instance.new("ScrollingFrame")
-scroll.Parent = main
+local scroll = Instance.new("ScrollingFrame", main)
 scroll.Size = UDim2.new(1,-20,1,-60)
 scroll.Position = UDim2.new(0,10,0,50)
-scroll.BackgroundTransparency = 1
-scroll.ScrollBarThickness = 6
-scroll.CanvasSize = UDim2.new(0,0,0,0)
-scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+scroll.CanvasSize = UDim2.new(0,0,0,1000)
 
-local layout = Instance.new("UIListLayout")
-layout.Parent = scroll
+local layout = Instance.new("UIListLayout", scroll)
 layout.Padding = UDim.new(0,5)
-layout.SortOrder = Enum.SortOrder.LayoutOrder
 
-local padding = Instance.new("UIPadding")
-padding.Parent = scroll
-padding.PaddingLeft = UDim.new(0,5)
-padding.PaddingRight = UDim.new(0,5)
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+scroll.CanvasSize = UDim2.new(0,0,0,layout.AbsoluteContentSize.Y + 10)
+end)
 
 --------------------------------------------------
 -- CREATE ITEM BUTTONS
@@ -184,8 +171,7 @@ padding.PaddingRight = UDim.new(0,5)
 
 for category, list in pairs(Items) do
 
-local label = Instance.new("TextLabel")
-label.Parent = scroll
+local label = Instance.new("TextLabel", scroll)
 label.Text = "=== "..category.." ==="
 label.Size = UDim2.new(1,0,0,30)
 label.BackgroundTransparency = 1
@@ -193,8 +179,7 @@ label.TextColor3 = Color3.new(1,1,1)
 
 for _,itemName in pairs(list) do
 
-local btn = Instance.new("TextButton")
-btn.Parent = scroll
+local btn = Instance.new("TextButton", scroll)
 btn.Size = UDim2.new(1,0,0,30)
 btn.Text = itemName
 
@@ -212,8 +197,7 @@ end
 
 local function createSetting(name,default,callback)
 
-local box = Instance.new("TextBox")
-box.Parent = scroll
+local box = Instance.new("TextBox", scroll)
 box.Size = UDim2.new(1,0,0,30)
 box.Text = name.." : "..default
 
