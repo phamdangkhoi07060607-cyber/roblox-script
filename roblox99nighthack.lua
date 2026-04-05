@@ -1,201 +1,238 @@
-local player = game.Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local humanoid = char:WaitForChild("Humanoid")
-local root = char:WaitForChild("HumanoidRootPart")
+-- GUI + TELEPORT ITEM + PLAYER SETTINGS + ESP
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
 
-local items = {
-"Revolver Ammo","Chair","Bolt","Log","Sheet Metal","UFO Junk","UFO Component",
-"Broken Fan","Old Radio","Gears","Broken Microwave","Tyre","Metal Chair",
-"Old Car Engine","Washing Machine","Cultist Experiment","Cultist Prototype",
-"UFO Scrap","Old Axes","Spears","Morningstars","Crossbows",
-"Bandage","Good Sack","(1) Diamond","Fuel Canister","Coal","Chainsaw"
+--------------------------------------------------
+-- ITEM LIST
+--------------------------------------------------
+
+local Items = {
+
+Food = {
+"Bandage",
+"Good Sack"
+},
+
+Weapon = {
+"Spear",
+"Morningstar",
+"Katana",
+"Laser Sword",
+"Ice Sword",
+"Trident",
+"Poison Claws",
+"Poison Spear",
+"Infernal Sword",
+"Cultist King Mace",
+"Obsidiron Hammer",
+"Scythe",
+"Vampire Scythe"
+},
+
+Armour = {
+"Leather Body",
+"Poison Armor",
+"Iron Body",
+"Thorn Body",
+"Riot Shield",
+"Alien Armor",
+"Obsidiron Body"
+},
+
+Resource = {
+"Diamond",
+"Fuel Canister",
+"Coal"
 }
 
-local enabled = {}
+}
 
--- GUI
-local gui = Instance.new("ScreenGui")
-gui.Parent = player.PlayerGui
-gui.ResetOnSpawn = false
-
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0,500,0,400)
-frame.Position = UDim2.new(0.5,-250,0.5,-200)
-frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-frame.Active = true
-frame.Draggable = true
-frame.Parent = gui
-
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1,0,0,40)
-title.Text = "ITEM CONTROL PANEL"
-title.BackgroundColor3 = Color3.fromRGB(40,40,40)
-title.TextColor3 = Color3.new(1,1,1)
-title.Parent = frame
-
--- Tabs
-local itemTabBtn = Instance.new("TextButton")
-itemTabBtn.Size = UDim2.new(0.5,0,0,35)
-itemTabBtn.Position = UDim2.new(0,0,0,40)
-itemTabBtn.Text = "Teleport Items"
-itemTabBtn.Parent = frame
-
-local playerTabBtn = Instance.new("TextButton")
-playerTabBtn.Size = UDim2.new(0.5,0,0,35)
-playerTabBtn.Position = UDim2.new(0.5,0,0,40)
-playerTabBtn.Text = "Player Settings"
-playerTabBtn.Parent = frame
-
-local itemsFrame = Instance.new("Frame")
-itemsFrame.Size = UDim2.new(1,0,1,-75)
-itemsFrame.Position = UDim2.new(0,0,0,75)
-itemsFrame.BackgroundTransparency = 1
-itemsFrame.Parent = frame
-
-local playerFrame = Instance.new("Frame")
-playerFrame.Size = UDim2.new(1,0,1,-75)
-playerFrame.Position = UDim2.new(0,0,0,75)
-playerFrame.BackgroundTransparency = 1
-playerFrame.Visible = false
-playerFrame.Parent = frame
-
-itemTabBtn.MouseButton1Click:Connect(function()
-itemsFrame.Visible = true
-playerFrame.Visible = false
-end)
-
-playerTabBtn.MouseButton1Click:Connect(function()
-itemsFrame.Visible = false
-playerFrame.Visible = true
-end)
-
+--------------------------------------------------
 -- ESP
-local function createESP(obj)
+--------------------------------------------------
 
-local part
-if obj:IsA("Model") then
-part = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
-elseif obj:IsA("BasePart") then
-part = obj
-end
+local function createESP(part)
 
-if not part then return end
+if part:FindFirstChild("ESP") then return end
 
-local billboard = Instance.new("BillboardGui")
-billboard.Size = UDim2.new(0,120,0,30)
-billboard.AlwaysOnTop = true
-billboard.Adornee = part
-billboard.Parent = part
+local bill = Instance.new("BillboardGui")
+bill.Name = "ESP"
+bill.Size = UDim2.new(0,100,0,40)
+bill.AlwaysOnTop = true
+bill.Parent = part
 
 local text = Instance.new("TextLabel")
 text.Size = UDim2.new(1,0,1,0)
 text.BackgroundTransparency = 1
-text.Text = obj.Name
-text.TextColor3 = Color3.fromRGB(0,255,0)
+text.TextColor3 = Color3.new(1,0,0)
+text.TextStrokeTransparency = 0
 text.TextScaled = true
-text.Parent = billboard
+text.Text = part.Name
+text.Parent = bill
 
 end
-
--- Teleport item
-local function teleportItem(obj)
-
-local part
-if obj:IsA("Model") then
-part = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
-elseif obj:IsA("BasePart") then
-part = obj
-end
-
-if not part then return end
-
-local old = part.Anchored
-
-part.Anchored = true
-part.CFrame = root.CFrame * CFrame.new(0,0,-6)
-
-task.wait()
-
-part.Anchored = old
-
-end
-
--- Item buttons
-local scroll = Instance.new("ScrollingFrame")
-scroll.Size = UDim2.new(1,0,1,0)
-scroll.CanvasSize = UDim2.new(0,0,0,#items*35)
-scroll.ScrollBarThickness = 6
-scroll.Parent = itemsFrame
-
-for i,name in ipairs(items) do
-
-enabled[name] = false
-
-local btn = Instance.new("TextButton")
-btn.Size = UDim2.new(1,-10,0,30)
-btn.Position = UDim2.new(0,5,0,(i-1)*35)
-btn.Text = name.." : OFF"
-btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
-btn.TextColor3 = Color3.new(1,1,1)
-btn.Parent = scroll
-
-btn.MouseButton1Click:Connect(function()
-
-enabled[name] = not enabled[name]
-
-if enabled[name] then
-btn.Text = name.." : ON"
 
 for _,v in pairs(workspace:GetDescendants()) do
-if v.Name == name then
-teleportItem(v)
+if v:IsA("BasePart") then
 createESP(v)
 end
 end
 
-else
-btn.Text = name.." : OFF"
+workspace.DescendantAdded:Connect(function(v)
+if v:IsA("BasePart") then
+createESP(v)
+end
+end)
+
+--------------------------------------------------
+-- TELEPORT FUNCTION
+--------------------------------------------------
+
+local function teleportItem(name)
+
+local char = player.Character
+if not char then return end
+
+local root = char:FindFirstChild("HumanoidRootPart")
+if not root then return end
+
+for _,v in pairs(workspace:GetDescendants()) do
+if v:IsA("BasePart") and v.Name == name then
+
+v.Anchored = true
+v.CFrame = root.CFrame * CFrame.new(0,0,-5)
+
+task.wait(0.15)
+
+v.Anchored = false
+
+end
 end
 
+end
+
+--------------------------------------------------
+-- GUI
+--------------------------------------------------
+
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0,500,0,350)
+main.Position = UDim2.new(0.5,-250,0.5,-175)
+main.BackgroundColor3 = Color3.fromRGB(30,30,30)
+
+--------------------------------------------------
+-- CLOSE BUTTON
+--------------------------------------------------
+
+local close = Instance.new("TextButton", main)
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-35,0,5)
+close.Text = "X"
+
+close.MouseButton1Click:Connect(function()
+main.Visible = false
+end)
+
+--------------------------------------------------
+-- OPEN BUTTON
+--------------------------------------------------
+
+local open = Instance.new("TextButton", gui)
+open.Size = UDim2.new(0,120,0,35)
+open.Position = UDim2.new(0,20,0.5,0)
+open.Text = "OPEN GUI"
+
+open.MouseButton1Click:Connect(function()
+main.Visible = true
+end)
+
+--------------------------------------------------
+-- SCROLL FRAME
+--------------------------------------------------
+
+local scroll = Instance.new("ScrollingFrame", main)
+scroll.Size = UDim2.new(1,-20,1,-60)
+scroll.Position = UDim2.new(0,10,0,50)
+scroll.ScrollBarThickness = 6
+
+local layout = Instance.new("UIListLayout", scroll)
+layout.Padding = UDim.new(0,5)
+
+-- FIX TRÀN DANH SÁCH
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+scroll.CanvasSize = UDim2.new(0,0,0,layout.AbsoluteContentSize.Y + 10)
+end)
+
+--------------------------------------------------
+-- CREATE ITEM BUTTONS
+--------------------------------------------------
+
+for category, list in pairs(Items) do
+
+local label = Instance.new("TextLabel", scroll)
+label.Text = "=== "..category.." ==="
+label.Size = UDim2.new(1,0,0,30)
+label.BackgroundTransparency = 1
+label.TextColor3 = Color3.new(1,1,1)
+
+for _,itemName in pairs(list) do
+
+local btn = Instance.new("TextButton", scroll)
+btn.Size = UDim2.new(1,0,0,30)
+btn.Text = itemName
+
+btn.MouseButton1Click:Connect(function()
+teleportItem(itemName)
 end)
 
 end
 
--- Player settings
+end
 
-local function createBox(text,pos,callback)
+--------------------------------------------------
+-- PLAYER SETTINGS
+--------------------------------------------------
 
-local label = Instance.new("TextLabel")
-label.Size = UDim2.new(0.4,0,0,30)
-label.Position = pos
-label.Text = text
-label.BackgroundTransparency = 1
-label.TextColor3 = Color3.new(1,1,1)
-label.Parent = playerFrame
+local function createSetting(name,default,callback)
 
-local box = Instance.new("TextBox")
-box.Size = UDim2.new(0.4,0,0,30)
-box.Position = pos + UDim2.new(0.45,0,0,0)
-box.Text = ""
-box.Parent = playerFrame
+local box = Instance.new("TextBox", scroll)
+box.Size = UDim2.new(1,0,0,30)
+box.Text = name.." : "..default
 
 box.FocusLost:Connect(function()
-local num = tonumber(box.Text)
+
+local num = tonumber(box.Text:match("%d+"))
 if num then
 callback(num)
 end
+
 end)
 
 end
 
-createBox("WalkSpeed",UDim2.new(0.05,0,0.1,0),function(v)
-humanoid.WalkSpeed = v
+createSetting("Speed",16,function(v)
+
+local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+if hum then
+hum.WalkSpeed = v
+end
+
 end)
 
-createBox("JumpPower",UDim2.new(0.05,0,0.25,0),function(v)
-humanoid.JumpPower = v
+createSetting("JumpPower",50,function(v)
+
+local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+if hum then
+hum.JumpPower = v
+end
+
 end)
 
-createBox("Gravity",UDim2.new(0.05,0,0.4,0),function(v)
+createSetting("Gravity",196,function(v)
+
 workspace.Gravity = v
+
 end)
